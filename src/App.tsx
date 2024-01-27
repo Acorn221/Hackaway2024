@@ -1,11 +1,17 @@
-import React from 'react';
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable prefer-destructuring */
+import React, { useEffect, useState } from 'react';
 import { XyzTransitionGroup } from '@animxyz/react';
+// @ts-ignore
+import WIIBalanceBoard, { WeightsType } from './wii-code/src/wiibalanceboard';
 
 import '@/index.css';
+import BoardDisplay from './board';
 
 const App = () => {
-  const [count, setCount] = React.useState(0);
-  const [showCount, setShowCount] = React.useState(true);
+  const [count, setCount] = useState(0);
+  const [showCount, setShowCount] = useState(true);
+  const [boards, setBoards] = useState<WIIBalanceBoard[]>([]);
 
   const increment = () => {
     setShowCount(false);
@@ -17,12 +23,43 @@ const App = () => {
     }, 150);
   };
 
+  const connectToBoard = async () => {
+    let device;
+    try {
+      const devices = await navigator.hid.requestDevice({
+        filters: [{ vendorId: 0x057e }],
+      });
+      // @ts-ignore
+      device = devices[0];
+
+      if (!device) {
+        return console.log('No device was selected.');
+      }
+      const board = new WIIBalanceBoard(device);
+
+      setBoards([...boards, board]);
+    } catch (error) {
+      console.log('An error oc[c]urred.', error);
+    }
+
+    if (!device) {
+      console.log('No device was selected.');
+    } else {
+      console.log(`HID: ${device.productName}`);
+    }
+    return undefined;
+  };
+
+  useEffect(() => {
+    console.log(boards);
+  }, [boards]);
+
   return (
     <div className="flex justify-center align-middle h-screen">
       <div className="bg-white m-auto p-10 rounded-xl w-3/4 md:w-1/2 text-center">
         <div className="underline text-5xl">Hello World</div>
         <div className="flex justify-center m-5">
-          <button className="text-2xl m-auto w-full bg-slate-200 hover:bg-slate-300 p-5 rounded-2xl flex" onClick={() => increment()}>
+          <button className="text-2xl m-auto w-full bg-slate-200 hover:bg-slate-300 p-5 rounded-2xl flex" onClick={() => connectToBoard()}>
             <div className="flex-initial">
               Click Count:
             </div>
@@ -36,19 +73,13 @@ const App = () => {
           </button>
         </div>
         <div className="m-5 text-left">
-          <div className="underline text-2xl mb-3">
-            This Template Uses:
-          </div>
-          <ul>
-            <li>○ Yarn</li>
-            <li>○ Typescript</li>
-            <li>○ React</li>
-            <li>○ Tailwind</li>
-            <li>○ Absolute Paths (@/components/MyComponent)</li>
-            <li>○ Vite</li>
-            <li>○ Github Pages, For Easy Deployment</li>
-            <li>○ Eslint</li>
-          </ul>
+          {
+            boards.map((board, key) => (
+              <div key={key}>
+                <BoardDisplay board={board} />
+              </div>
+            ))
+          }
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-undef */
@@ -13,15 +14,19 @@ import {
 
 import WIIMote from './wiimote.js';
 
+export type WeightsType = {
+  TOP_RIGHT: number;
+  BOTTOM_RIGHT: number;
+  TOP_LEFT: number;
+  BOTTOM_LEFT: number;
+};
+
 export default class WIIBalanceBoard extends WIIMote {
   WeightListener: any;
 
-  weights: {
-    TOP_RIGHT: number;
-    BOTTOM_RIGHT: number;
-    TOP_LEFT: number;
-    BOTTOM_LEFT: number;
-  };
+  target: EventTarget = new EventTarget();
+
+  weights: WeightsType;
 
   calibration: number[][];
 
@@ -127,6 +132,7 @@ export default class WIIBalanceBoard extends WIIMote {
 
         // raw weight data
         this.WeightDecoder(data);
+        this.target.dispatchEvent(new CustomEvent('weight', { detail: this.weights }));
 
         // weight listener
         break;
