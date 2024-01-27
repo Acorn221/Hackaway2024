@@ -6,9 +6,9 @@ import {
   BUTTON_BYTE2,
   InputReport,
   WiiBalanceBoardPositions,
-} from "./const.js";
+} from './const.js';
 
-import WIIMote from "./wiimote.js";
+import WIIMote from './wiimote.js';
 
 export default class WIIBalanceBoard extends WIIMote {
   constructor(device) {
@@ -25,7 +25,7 @@ export default class WIIBalanceBoard extends WIIMote {
     this.calibration = [
       [10000.0, 10000.0, 10000.0, 10000.0],
       [10000.0, 10000.0, 10000.0, 10000.0],
-      [10000.0, 10000.0, 10000.0, 10000.0]
+      [10000.0, 10000.0, 10000.0, 10000.0],
     ];
   }
 
@@ -39,56 +39,51 @@ export default class WIIBalanceBoard extends WIIMote {
         0x00,
         0x24,
         0x00,
-        0x18
+        0x18,
       ]);
       this.setDataTracking(DataReportMode.EXTENSION_8BYTES);
 
-      this.device.oninputreport = e => this.listener(e);
+      this.device.oninputreport = (e) => this.listener(e);
     });
   }
 
   WeightCalibrationDecoder(data) {
     const length = data.getUint8(2) / 16 + 1;
     if (length == 16) {
-      [0, 1].forEach(i => {
-        this.calibration[i] = [0, 1, 2, 3].map(j =>
-          data.getUint16(4 + i * 8 + 2 * j, true)
-        );
+      [0, 1].forEach((i) => {
+        this.calibration[i] = [0, 1, 2, 3].map((j) => data.getUint16(4 + i * 8 + 2 * j, true));
       });
     } else if (length == 8) {
-      this.calibration[2] = [0, 1, 2, 3].map(j =>
-        data.getUint16(4 + 2 * j, true)
-      );
+      this.calibration[2] = [0, 1, 2, 3].map((j) => data.getUint16(4 + 2 * j, true));
     }
   }
 
   WeightDecoder(data) {
-    const weights = [0, 1, 2, 3].map(i => {
+    const weights = [0, 1, 2, 3].map((i) => {
       const raw = data.getUint16(2 + 2 * i, false);
-      //return raw;
+      // return raw;
       if (raw < this.calibration[0][i]) {
         return 0;
-      } else if (raw < this.calibration[1][i]) {
+      } if (raw < this.calibration[1][i]) {
         return (
-          17 *
-          ((raw - this.calibration[0][i]) /
-            (this.calibration[1][i] - this.calibration[0][i]))
-        );
-      } else {
-        return (
-          17 +
-          17 *
-            ((raw - this.calibration[1][i]) /
-              (this.calibration[2][i] - this.calibration[1][i]))
+          17
+          * ((raw - this.calibration[0][i])
+            / (this.calibration[1][i] - this.calibration[0][i]))
         );
       }
+      return (
+        17
+          + 17
+            * ((raw - this.calibration[1][i])
+              / (this.calibration[2][i] - this.calibration[1][i]))
+      );
     });
-    
-    for (let position in WiiBalanceBoardPositions) {
+
+    for (const position in WiiBalanceBoardPositions) {
       const index = WiiBalanceBoardPositions[position];
       this.weights[position] = weights[index];
     }
-        
+
     if (this.WeightListener) {
       this.WeightListener(this.weights);
     }
@@ -96,22 +91,22 @@ export default class WIIBalanceBoard extends WIIMote {
 
   // main listener received input from the Wiimote
   listener(event) {
-    var { data } = event;
+    const { data } = event;
 
     switch (event.reportId) {
       case InputReport.STATUS:
-        console.log("status");
+        console.log('status');
         break;
       case InputReport.READ_MEM_DATA:
         // calibration data
-        console.log("calibration data");
+        console.log('calibration data');
         this.WeightCalibrationDecoder(data);
         break;
       case DataReportMode.EXTENSION_8BYTES:
         // weight data
 
         // button data
-        this.BTNDecoder(...[0, 1].map(i => data.getUint8(i)));
+        this.BTNDecoder(...[0, 1].map((i) => data.getUint8(i)));
 
         // raw weight data
         this.WeightDecoder(data);
