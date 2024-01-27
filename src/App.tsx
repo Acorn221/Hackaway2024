@@ -23,6 +23,10 @@ const App = () => {
     }, 150);
   };
 
+  const removeBoard = (board: WIIBalanceBoard) => {
+    setBoards(boards.filter((b) => b !== board));
+  };
+
   const connectToBoard = async () => {
     let device;
     try {
@@ -76,7 +80,7 @@ const App = () => {
           {
             boards.map((board, key) => (
               <div key={key}>
-                <BoardDisplay board={board} />
+                <BoardDisplay board={board} removeSelf={() => removeBoard(board)} />
               </div>
             ))
           }

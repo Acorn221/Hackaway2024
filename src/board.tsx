@@ -6,9 +6,10 @@ import WIIBalanceBoard, { WeightsType } from './wii-code/src/wiibalanceboard';
 
 type BoardDisplayProps = {
 	board: WIIBalanceBoard;
+  removeSelf: () => void;
 };
 
-const BoardDisplay: FC<BoardDisplayProps> = ({ board }) => {
+const BoardDisplay: FC<BoardDisplayProps> = ({ board, removeSelf }) => {
   const [weight, setWeight] = useState<WeightsType>({
     TOP_LEFT: 0,
     BOTTOM_LEFT: 0,
@@ -18,7 +19,6 @@ const BoardDisplay: FC<BoardDisplayProps> = ({ board }) => {
 
   useEffect(() => {
     board.WeightListener = (w) => {
-      debugger;
       setWeight({ ...w });
       // const total = w.TOP_LEFT + w.TOP_RIGHT + w.BOTTOM_LEFT + w.BOTTOM_RIGHT;
     };
@@ -47,6 +47,11 @@ const BoardDisplay: FC<BoardDisplayProps> = ({ board }) => {
         Bottom Left:
         {weight.BOTTOM_LEFT}
       </div>
+      <div>
+        Total:
+        {Math.round(weight.BOTTOM_RIGHT + weight.TOP_LEFT + weight.TOP_RIGHT + weight.BOTTOM_LEFT)}
+      </div>
+      <button type="button" onClick={() => removeSelf()}>Remove</button>
     </>
   );
 };
