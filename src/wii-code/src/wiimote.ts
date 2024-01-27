@@ -1,9 +1,10 @@
+/* eslint-disable no-undef */
 import {
   toBigEndian,
   numbersToBuffer,
   debug,
   getBitInByte,
-} from './helpers.js';
+} from './helpers';
 
 import {
   ReportMode,
@@ -19,7 +20,33 @@ import {
 } from './const.js';
 
 export default class WIIMote {
-  constructor(device) {
+  device: HIDDevice;
+
+  buttonStatus: {
+    DPAD_LEFT: boolean;
+    DPAD_RIGHT: boolean;
+    DPAD_DOWN: boolean;
+    DPAD_UP: boolean;
+    PLUS: boolean;
+    TWO: boolean;
+    ONE: boolean;
+    B: boolean;
+    A: boolean;
+    MINUS: boolean;
+    HOME: boolean;
+  };
+
+  ledStatus: boolean[];
+
+  rumblingStatus: boolean;
+
+  IrListener: any;
+
+  AccListener: any;
+
+  BtnListener: any;
+
+  constructor(device: HIDDevice) {
     this.device = device;
     this.buttonStatus = {
       DPAD_LEFT: false,
@@ -86,7 +113,7 @@ export default class WIIMote {
   }
 
   // Send a data report
-  sendReport(mode, data) {
+  sendReport(mode: any, data: number[]) {
     return this.device.sendReport(
       mode,
       numbersToBuffer(data),
@@ -199,14 +226,14 @@ export default class WIIMote {
   }
 
   // main listener received input from the Wiimote
-  listener(event) {
+  listener(event: any) {
     const data = new Uint8Array(event.data.buffer);
     const [byte1, byte2, // buttons
       accX, accY, accZ, // ACC
       ir1, ir2, ir3, ir4, ir5, ir6, ir7, ir8, ir9, ir10, ir11, ir12, // IR Camera
     ] = data;
 
-    if (event.reportId == InputReport.STATUS) {
+    if (event.reportId === InputReport.STATUS) {
       console.log(data);
       this.setDataTracking(DataReportMode.CORE_BUTTONS_ACCEL_IR);
     }

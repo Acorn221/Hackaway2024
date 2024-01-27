@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import {
   ReportMode,
   DataReportMode,
@@ -11,7 +12,18 @@ import {
 import WIIMote from './wiimote.js';
 
 export default class WIIBalanceBoard extends WIIMote {
-  constructor(device) {
+  WeightListener: any;
+
+  weights: {
+    TOP_RIGHT: number;
+    BOTTOM_RIGHT: number;
+    TOP_LEFT: number;
+    BOTTOM_LEFT: number;
+  };
+
+  calibration: number[][];
+
+  constructor(device: HIDDevice) {
     super(device);
 
     this.WeightListener = null;
