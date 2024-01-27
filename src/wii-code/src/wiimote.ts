@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-undef */
 import {
   toBigEndian,
@@ -74,6 +75,7 @@ export default class WIIMote {
     this.AccListener = null;
     this.BtnListener = null;
 
+    // @ts-ignore
     setTimeout(this.initiateDevice(), 200);
   }
 
@@ -135,7 +137,7 @@ export default class WIIMote {
   }
 
   // Encode LED Status
-  LedEncoder(one, two, three, four) {
+  LedEncoder(one: any, two: any, three: any, four: any) {
     return (
       +Boolean(one) * LEDS.ONE
           + +Boolean(two) * LEDS.TWO
@@ -145,13 +147,14 @@ export default class WIIMote {
   }
 
   // Toggle an LED
-  toggleLed(id) {
+  toggleLed(id: number) {
     this.ledStatus[id] = !this.ledStatus[id];
+    // @ts-ignore
     return this.sendReport(ReportMode.PLAYER_LED, [this.LedEncoder(...this.ledStatus)]);
   }
 
   // Write the the Wiimote register
-  writeRegister(type, offset, data) {
+  writeRegister(type: any, offset: any, data: any) {
     const offsetArr = toBigEndian(offset, 3);
     const dataLength = data.length;
 
@@ -171,18 +174,18 @@ export default class WIIMote {
   }
 
   // Decode the Accelerometer data
-  ACCDecoder(data) {
+  ACCDecoder(data: any) {
     if (this.AccListener != null) {
       this.AccListener(...data);
     }
   }
 
   // Decode the IR Camera data
-  IRDecoder(data) {
+  IRDecoder(data: any) {
     const tracked_objects = [];
 
     for (let index = 0; index < 12; index += 3) {
-      if (data[index] != 255 && data[index + 1] != 255 && data[index + 2] != 255) {
+      if (data[index] !== 255 && data[index + 1] !== 255 && data[index + 2] !== 255) {
         let x = data[index];
         let y = data[index + 1];
         const size = data[index + 2];
@@ -204,13 +207,14 @@ export default class WIIMote {
   }
 
   // Toggle button status in
-  toggleButton(name, value) {
-    if (name == '' || name == undefined) return;
+  toggleButton(name: any, value: any) {
+    if (name === '' || name === undefined) return;
 
-    this.buttonStatus[name] = (value != 0);
+    // @ts-ignore
+    this.buttonStatus[name] = (value !== 0);
   }
 
-  // Decode the button data
+  // @ts-ignore Decode the button data
   BTNDecoder(byte1, byte2) {
     for (let i = 0; i < 8; i++) {
       const byte1Status = getBitInByte(byte1, i + 1);

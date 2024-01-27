@@ -1,3 +1,5 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-undef */
 import {
   ReportMode,
@@ -59,18 +61,18 @@ export default class WIIBalanceBoard extends WIIMote {
     });
   }
 
-  WeightCalibrationDecoder(data) {
+  WeightCalibrationDecoder(data: any) {
     const length = data.getUint8(2) / 16 + 1;
-    if (length == 16) {
+    if (length === 16) {
       [0, 1].forEach((i) => {
         this.calibration[i] = [0, 1, 2, 3].map((j) => data.getUint16(4 + i * 8 + 2 * j, true));
       });
-    } else if (length == 8) {
+    } else if (length === 8) {
       this.calibration[2] = [0, 1, 2, 3].map((j) => data.getUint16(4 + 2 * j, true));
     }
   }
 
-  WeightDecoder(data) {
+  WeightDecoder(data: any) {
     const weights = [0, 1, 2, 3].map((i) => {
       const raw = data.getUint16(2 + 2 * i, false);
       // return raw;
@@ -92,7 +94,9 @@ export default class WIIBalanceBoard extends WIIMote {
     });
 
     for (const position in WiiBalanceBoardPositions) {
+      // @ts-ignore
       const index = WiiBalanceBoardPositions[position];
+      // @ts-ignore
       this.weights[position] = weights[index];
     }
 
@@ -102,7 +106,7 @@ export default class WIIBalanceBoard extends WIIMote {
   }
 
   // main listener received input from the Wiimote
-  listener(event) {
+  listener(event: any) {
     const { data } = event;
 
     switch (event.reportId) {
@@ -118,6 +122,7 @@ export default class WIIBalanceBoard extends WIIMote {
         // weight data
 
         // button data
+        // @ts-ignore
         this.BTNDecoder(...[0, 1].map((i) => data.getUint8(i)));
 
         // raw weight data
