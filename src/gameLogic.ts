@@ -22,7 +22,7 @@ const h = () => window.innerHeight;
 const w = () => window.innerWidth;
 
 let dance1 = {
-  id: "",
+  id: 0,
   noteHit: false,
   movesPlayed: [] as string[],
   beatsSinceLastNote: 0,
@@ -32,7 +32,7 @@ let dance1 = {
 };
 
 let dance2 = {
-  id: "",
+  id: 0,
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
@@ -42,7 +42,7 @@ let dance2 = {
 };
 
 let dance3 = {
-  id: "",
+  id: 0,
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
@@ -52,7 +52,7 @@ let dance3 = {
 };
 
 let dance4 = {
-  id: "",
+  id: 0,
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
@@ -81,6 +81,7 @@ export function onLoad() {
     const boardMoves: { id: number; move: Direction } = e.detail;
     const index = boardMoves.id - 1;
     dancePads[index].movesPlayed.push(boardMoves.move);
+    dancePads[index].id = boardMoves.id;
   });
 
   window.requestAnimationFrame(loop);
@@ -137,7 +138,7 @@ function loop() {
   // Dance pads
 
   for (const pad of dancePads) {
-    if (pad.id.length === 0) continue;
+    if (pad.id === 0) continue;
 
     context.fillStyle = "white";
     context.fillRect(pad.x, pad.y, PAD_WIDTH, PAD_HEIGHT);
