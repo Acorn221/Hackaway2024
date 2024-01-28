@@ -2,16 +2,8 @@ let lastWsNote = "";
 let lastNote = "";
 let lastMove = "";
 
-let notesPlayed: string[] = [];
+let notesPlayed = [];
 let noteHit = false;
-
-type Direction =
-  | "LEFT MOVE"
-  | "RIGHT MOVE"
-  | "FORWARD MOVE"
-  | "BACKWARD MOVE"
-  | "NEUTRAL MOVE"
-  | "INVALID MOVE";
 
 const PAD_WIDTH = 175;
 const PAD_HEIGHT = 125;
@@ -22,9 +14,8 @@ const h = () => window.innerHeight;
 const w = () => window.innerWidth;
 
 let dance1 = {
-  id: "",
   noteHit: false,
-  movesPlayed: [] as string[],
+  movesPlayed: [],
   beatsSinceLastNote: 0,
 
   x: w() - GAP - PAD_WIDTH / 2,
@@ -32,7 +23,6 @@ let dance1 = {
 };
 
 let dance2 = {
-  id: "",
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
@@ -42,7 +32,6 @@ let dance2 = {
 };
 
 let dance3 = {
-  id: "",
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
@@ -52,7 +41,6 @@ let dance3 = {
 };
 
 let dance4 = {
-  id: "",
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
@@ -63,7 +51,7 @@ let dance4 = {
 
 let dancePads = [dance1, dance2, dance3, dance4];
 
-export function onLoad() {
+function onLoad() {
   const ws = new WebSocket("ws://127.0.0.1:3000/ws");
 
   ws.onopen = () => {
@@ -76,12 +64,6 @@ export function onLoad() {
 
     notesPlayed.push(`${text[0]}`);
   };
-
-  window.addEventListener("move", (e) => {
-    const boardMoves: { id: number; move: Direction } = e.detail;
-    const index = boardMoves.id - 1;
-    dancePads[index].movesPlayed.push(boardMoves.move);
-  });
 
   window.requestAnimationFrame(loop);
 }
@@ -108,14 +90,16 @@ export function onLoad() {
 //
 
 function loop() {
-  const canvas: HTMLCanvasElement = document.getElementById(
-    "canvas"
-  ) as HTMLCanvasElement;
+  /**
+   * Need to explain the purpose of X here.
+   * @type {HTMLCanvasElement}
+   */
+  const canvas = document.getElementById("canvas");
 
   canvas.width = w();
   canvas.height = h();
 
-  const context = canvas.getContext("2d")!;
+  const context = canvas.getContext("2d");
 
   context.fillStyle = "#220055";
   context.fillRect(0, 0, canvas.width, canvas.height);
@@ -137,19 +121,12 @@ function loop() {
   // Dance pads
 
   for (const pad of dancePads) {
-    if (pad.id.length === 0) continue;
-
     context.fillStyle = "white";
     context.fillRect(pad.x, pad.y, PAD_WIDTH, PAD_HEIGHT);
 
     debugger;
 
-    if (pad.noteHit) {
-      context.fillStyle = "lime";
-    } else {
-      context.fillStyle = "red";
-    }
-
+    context.fillStyle = "red";
     context.beginPath();
     if (lastMove === "UP") {
       context.arc(
@@ -309,5 +286,3 @@ setInterval(() => {
     }
   }
 }, INTERVAL);
-
-window.onload = onLoad;
