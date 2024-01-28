@@ -202,7 +202,7 @@ export default class WIIBalanceBoard extends WIIMote {
       BOTTOM_LEFT: 0,
     };
 
-    this.weightsHistory.forEach((weight) => {
+    this.weightsHistory.slice(this.weightsHistory.length - 10, this.weightsHistory.length).forEach((weight) => {
       for (const position in WiiBalanceBoardPositions) {
         // @ts-ignore
         avg[position] += weight[position];
@@ -219,23 +219,33 @@ export default class WIIBalanceBoard extends WIIMote {
       BOTTOM: (avg.BOTTOM_LEFT + avg.BOTTOM_RIGHT) / 2,
     };
 
-    // Heuristic for determining if a user is leaning to a side
-    // Let's use the getUserWeight function to make estimations based on the user's weight
-    const directionThreshold = this.userWeight * 0.2;
+    const directionThreshold = this.userWeight * 0.3;
 
-    let detectedDirection = '';
+    console.log('Direction Threshold:', directionThreshold);
+    console.log('Weight Sums:', sum);
+
+    let detectedDirection = 'INVALID MOVE';
+
+    const forwardBackThresh = this.userWeight * 0.5;
 
     // Check which direction the user is leaning
-    if (sum.LEFT > directionThreshold) {
-      detectedDirection = 'LEFT';
-    } else if (sum.RIGHT > directionThreshold) {
-      detectedDirection = 'RIGHT';
-    } else if (sum.TOP > directionThreshold / 2) {
-      detectedDirection = 'FORWARD';
-    } else if (sum.BOTTOM > directionThreshold / 2) {
-      detectedDirection = 'BACKWARD';
+    if (sum.LEFT > directionThreshold && sum.RIGHT < directionThreshold) {
+      detectedDirection = 'LEFT MOVE';
+    } else if (sum.RIGHT > directionThreshold && sum.LEFT < directionThreshold) {
+      detectedDirection = 'RIGHT MOVE';
+    } else if (sum.TOP > forwardBackThresh && sum.BOTTOM < forwardBackThresh) {
+      detectedDirection = 'FORWARD MOVE';
+    } else if (sum.BOTTOM > forwardBackThresh && sum.TOP < forwardBackThresh) {
+      detectedDirection = 'BACKWARD MOVE';
+    } else if (
+      sum.LEFT < directionThreshold
+  && sum.RIGHT < directionThreshold
+  && sum.TOP < directionThreshold
+  && sum.BOTTOM < directionThreshold
+    ) {
+      detectedDirection = 'NEUTRAL MOVE';
     } else {
-      detectedDirection = 'NEUTRAL';
+      detectedDirection = 'INVALID MOVE';
     }
 
     if (this.currentMove !== detectedDirection) {
