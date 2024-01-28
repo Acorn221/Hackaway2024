@@ -2,8 +2,12 @@ let lastWsNote = "";
 let lastNote = "";
 let lastMove = "";
 
+let interval: NodeJS.Timeout;
+
 let notesPlayed: string[] = [];
 let noteHit = false;
+
+let BPM = 114;
 
 type Direction =
   | "LEFT MOVE"
@@ -89,6 +93,19 @@ let dance4 = {
 
 let dancePads = [dance1, dance2, dance3, dance4];
 
+export function resetScore() {
+  score = 0;
+  for (const pad of dancePads) {
+    pad.score = 0;
+  }
+}
+
+export function changeBpm(bpm: number) {
+  BPM = bpm;
+  clearInterval(interval);
+  interval = setInterval(gameInterval, BPM);
+}
+
 export function onLoad() {
   const ws = new WebSocket("ws://127.0.0.1:3000/ws");
 
@@ -102,6 +119,9 @@ export function onLoad() {
 
     notesPlayed.push(`${text[0]}`);
   };
+
+  clearInterval(interval);
+  interval = setInterval(gameInterval, BPM);
 
   window.addEventListener("move", (e) => {
     console.log(e.detail);
@@ -413,7 +433,6 @@ const DANCE_TRACK = [
   "",
 ];
 
-const BPM = 114;
 const GAME_INTERVAL = (BPM / 60) * 4;
 const INTERVAL = (1 / GAME_INTERVAL) * 1000;
 
@@ -432,7 +451,7 @@ function getNextMove() {
   }
 }
 
-setInterval(() => {
+function gameInterval() {
   const note = GUITAR_TRACK[gameIndex % GUITAR_TRACK.length];
   const danceMove = DANCE_TRACK[gameIndex % GUITAR_TRACK.length];
 
@@ -478,6 +497,4 @@ setInterval(() => {
       notesPlayed = [];
     }
   }
-}, INTERVAL);
-
-window.onload = onLoad;
+}
