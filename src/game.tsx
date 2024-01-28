@@ -55,9 +55,9 @@ class ExampleScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('logo', 'assets/phaser3-logo.png');
-    this.load.spritesheet('player', 'assets/player.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.spritesheet('guitar', 'assets/guitar.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('logo', 'assets/guitar.jpeg');
+    this.load.spritesheet('player', 'assets/guitar.jpeg', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('guitar', 'assets/guitar.jpeg', { frameWidth: 32, frameHeight: 48 });
   }
 
   create() {

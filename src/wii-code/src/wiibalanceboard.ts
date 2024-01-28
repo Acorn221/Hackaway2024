@@ -85,7 +85,12 @@ export default class WIIBalanceBoard extends WIIMote {
       this.analyseMove();
       const weight = this.getUserStableWeightMode();
       if (weight && weight > 25) {
-        this.userWeight = this.getUserWeight();
+        const newWeight = this.getUserWeight();
+        if (newWeight) {
+          this.userWeight = newWeight;
+          const weightEvent = new CustomEvent('userWeight', { detail: this.userWeight });
+          this.target.dispatchEvent(weightEvent);
+        }
         console.log(this.userWeight);
         this.userWeightHistory.push(weight);
         if (this.userWeightHistory.length > 100) {
@@ -213,10 +218,10 @@ export default class WIIBalanceBoard extends WIIMote {
 
     // Calculate sum of weights for left, right, top and bottom
     const sum = {
-      LEFT: (avg.TOP_LEFT + avg.BOTTOM_LEFT) / 2,
-      RIGHT: (avg.TOP_RIGHT + avg.BOTTOM_RIGHT) / 2,
-      TOP: (avg.TOP_LEFT + avg.TOP_RIGHT) / 2,
-      BOTTOM: (avg.BOTTOM_LEFT + avg.BOTTOM_RIGHT) / 2,
+      LEFT: (avg.TOP_LEFT + avg.BOTTOM_LEFT) / 10,
+      RIGHT: (avg.TOP_RIGHT + avg.BOTTOM_RIGHT) / 10,
+      TOP: (avg.TOP_LEFT + avg.TOP_RIGHT) / 10,
+      BOTTOM: (avg.BOTTOM_LEFT + avg.BOTTOM_RIGHT) / 10,
     };
 
     const directionThreshold = this.userWeight * 0.20;
@@ -226,9 +231,9 @@ export default class WIIBalanceBoard extends WIIMote {
 
     let detectedDirection = 'INVALID MOVE';
 
-    const forwardThresh = 1;
+    const forwardThresh = directionThreshold * 0.15;
 
-    const backThresh = 1;
+    const backThresh = directionThreshold * 0.25;
 
     // Check which direction the user is leaning
     if (sum.LEFT > directionThreshold && sum.RIGHT < directionThreshold) {

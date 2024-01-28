@@ -4,12 +4,11 @@
 import React, { useEffect, useState } from 'react';
 import { XyzTransitionGroup } from '@animxyz/react';
 // @ts-ignore
-import Phaser from 'phaser';
 import WIIBalanceBoard, { WeightsType } from './wii-code/src/wiibalanceboard';
 
 import '@/index.css';
 import BoardDisplay from './board';
-import { GameContainer, config } from './game';
+import Canvas from './canvas';
 
 const App = () => {
   const [count, setCount] = useState(0);
@@ -59,11 +58,17 @@ const App = () => {
 
   useEffect(() => {
     console.log(boards);
+    // @ts-ignore
+    window.boards = boards;
+
+    const customEvent = new CustomEvent('boards', { detail: boards });
+
+    window.dispatchEvent(customEvent);
   }, [boards]);
 
   return (
     <div className="min-h-screen w-full">
-      <GameContainer />
+      <Canvas />
       <div className="flex justify-center align-middle h-screen">
         <div className="bg-white m-auto p-10 rounded-xl w-3/4 md:w-1/2 text-center">
           <div className="underline text-5xl">Hello World</div>
