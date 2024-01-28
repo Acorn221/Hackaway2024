@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#note {
+  font-size: 100px;
+  font-weight: 500;
+}

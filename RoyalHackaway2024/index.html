@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dance Game - Hackaway2024</title>
+    <style>
+        canvas {
+            border: 10px solid #CC6829;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="message"></div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const arrowImages = [];
+        const directions = ['Up', 'Down', 'Left', 'Right'];
+        let currentArrowIndex = 0;
+        let lastArrowDisplayTime;
+
+        // Constants
+        const ARROW_DISPLAY_INTERVAL = 3000;
+        const MESSAGE_DISPLAY_DURATION = 2500;
+
+        // Load arrow images
+        for (const direction of directions) {
+            const arrowImage = new Image();
+            arrowImage.src = `wiiBoard/assets/${direction}.jpg`; // Replace with actual paths
+            arrowImages.push(arrowImage);
+        }
+
+        // Create an Image object for the background
+        const backgroundImage = new Image();
+        backgroundImage.src = 'wiiBoard/assets/RhulBackground.jpg'; // Replace with actual path
+        // Wait for the background image to load
+        backgroundImage.onload = function() {
+            // Draw the background image on the canvas 
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        };
+
+        function displayArrow() {
+            clearCanvas();
+            drawBackground();
+            drawCurrentArrow();
+            lastArrowDisplayTime = Date.now();
+            currentArrowIndex = (currentArrowIndex + 1) % arrowImages.length;
+        }
+
+        setInterval(displayArrow, ARROW_DISPLAY_INTERVAL);
+
+        canvas.addEventListener('click', handleCanvasClick);
+
+        function handleCanvasClick(event) {
+            const timeElapsed = Date.now() - lastArrowDisplayTime;
+            const pressedDirection = calculatePressedDirection(event.clientX, event.clientY);
+            const message = determineMessage(timeElapsed, pressedDirection);
+            displayMessage(message);
+        }
+
+        function calculatePressedDirection(x, y) {
+            return (x < canvas.width / 2) ? ((y < canvas.height / 2) ? 'Up' : 'Down') : ((y < canvas.height / 2) ? 'Left' : 'Right');
+        }
+
+        function determineMessage(timeElapsed, pressedDirection) {
+            let message = `Pressed direction: ${pressedDirection}, `;
+            if (timeElapsed < 1000) {
+                message += 'Brilliant!';
+            } else if (timeElapsed < 2000) {
+                message += 'Well Done!';
+            } else {
+                message += 'Too Slow';
+            }
+            return message;
+        }
+
+        function displayMessage(message) {
+            document.getElementById('message').innerText = message;
+            setTimeout(() => {
+                document.getElementById('message').innerText = '';
+            }, MESSAGE_DISPLAY_DURATION);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawBackground() {
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        }
+
+        function drawCurrentArrow() {
+            const currentArrow = arrowImages[currentArrowIndex];
+            ctx.drawImage(currentArrow, 0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+</html>
