@@ -39,6 +39,8 @@ export type WeightsType = {
 export default class WIIBalanceBoard extends WIIMote {
   WeightListener: any;
 
+  idNum: number;
+
   target: EventTarget = new EventTarget();
 
   weights: WeightsType;
@@ -57,8 +59,10 @@ export default class WIIBalanceBoard extends WIIMote {
 
   userWeightHistory: number[] = [];
 
-  constructor(device: HIDDevice) {
+  constructor(device: HIDDevice, idNum: number) {
     super(device);
+
+    this.idNum = idNum;
 
     this.WeightListener = null;
     this.weights = {
@@ -97,6 +101,12 @@ export default class WIIBalanceBoard extends WIIMote {
           this.userWeightHistory.shift();
         }
       }
+    });
+
+    this.target.addEventListener('move', (e: any) => {
+      // emit the move with the board id to the window
+      const moveEvent = new CustomEvent('move', { detail: { id: this.idNum, move: e.detail } });
+      window.dispatchEvent(moveEvent);
     });
   }
 
