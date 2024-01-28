@@ -18,47 +18,67 @@ const PAD_HEIGHT = 125;
 const R = 10;
 const GAP = 200;
 
+function canvas_arrow(context, fromx, fromy, tox, toy) {
+  var headlen = 10; // length of head in pixels
+  var dx = tox - fromx;
+  var dy = toy - fromy;
+  var angle = Math.atan2(dy, dx);
+  context.moveTo(fromx, fromy);
+  context.lineTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+  context.moveTo(tox, toy);
+  context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+}
+
 const h = () => window.innerHeight;
 const w = () => window.innerWidth;
 
 let dance1 = {
-  id: 0,
+  id: -1,
   noteHit: false,
   movesPlayed: [] as string[],
   beatsSinceLastNote: 0,
 
   x: w() - GAP - PAD_WIDTH / 2,
   y: h() - GAP - PAD_HEIGHT / 2,
+
+  score: 0,
 };
 
 let dance2 = {
-  id: 0,
+  id: -1,
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
 
   x: w() - GAP - PAD_WIDTH / 2,
   y: GAP - PAD_HEIGHT / 2,
+
+  score: 0,
 };
 
 let dance3 = {
-  id: 0,
+  id: -1,
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
 
   x: GAP - PAD_WIDTH / 2,
   y: h() - GAP - PAD_HEIGHT / 2,
+
+  score: 0,
 };
 
 let dance4 = {
-  id: 0,
+  id: -1,
   noteHit: false,
   movesPlayed: [],
   beatsSinceLastNote: 0,
 
   x: GAP - PAD_WIDTH / 2,
   y: GAP - PAD_HEIGHT / 2,
+
+  score: 0,
 };
 
 let dancePads = [dance1, dance2, dance3, dance4];
@@ -78,8 +98,9 @@ export function onLoad() {
   };
 
   window.addEventListener("move", (e) => {
+    console.log(e.detail);
     const boardMoves: { id: number; move: Direction } = e.detail;
-    const index = boardMoves.id - 1;
+    const index = boardMoves.id ;
     dancePads[index].movesPlayed.push(boardMoves.move);
     dancePads[index].id = boardMoves.id;
   });
@@ -126,24 +147,65 @@ function loop() {
   } else {
     context.fillStyle = "white";
   }
+
   context.font = "64px Comic Sans";
   context.fillText(lastNote, canvas.width / 2, canvas.height / 2);
 
-  // make flash
-
-  context.fillStyle = "white";
   context.font = "32px Comic Sans";
-  context.fillText(lastWsNote, 150, 100);
+  context.fillText(score.toString(), canvas.width / 2, canvas.height / 2 - 100);
+
+  // make flas
 
   // Dance pads
 
   for (const pad of dancePads) {
-    if (pad.id === 0) continue;
+    if (pad.id === -1) continue;
+
+    context.font = "32px Comic Sans";
+    context.fillStyle = "red";
+    context.fillText(pad.score.toString(), pad.x, pad.y + 200);
 
     context.fillStyle = "white";
     context.fillRect(pad.x, pad.y, PAD_WIDTH, PAD_HEIGHT);
 
-    debugger;
+    // context.fillStyle = "black";
+
+    // const nextMove = getNextMove();
+
+    // if (nextMove === "FORWARD MOVE") {      
+    //   context.arc(
+    //     pad.x + PAD_WIDTH / 2,
+    //     pad.y + PAD_HEIGHT / 4,
+    //     R,
+    //     0,
+    //     2 * Math.PI
+    //   );
+    // } else if (nextMove === "BACKWARD MOVE") {      
+    //   context.arc(
+    //     pad.x + PAD_WIDTH / 2,
+    //     pad.y + (PAD_HEIGHT / 4) * 3,
+    //     R,
+    //     0,
+    //     2 * Math.PI
+    //   );
+    // } else if (nextMove === "LEFT MOVE") {
+    //   context.arc(
+    //     pad.x + PAD_WIDTH / 4,
+    //     pad.y + PAD_HEIGHT / 2,
+    //     R,
+    //     0,
+    //     2 * Math.PI
+    //   );
+    // } else if (nextMove === "RIGHT MOVE") {
+    //   context.arc(
+    //     pad.x + (PAD_WIDTH / 4) * 3,
+    //     pad.y + PAD_HEIGHT / 2,
+    //     R,
+    //     0,
+    //     2 * Math.PI
+    //   );
+    // }
+    // context.fill();
 
     if (pad.noteHit) {
       context.fillStyle = "lime";
@@ -152,7 +214,7 @@ function loop() {
     }
 
     context.beginPath();
-    if (lastMove === "UP") {
+    if (lastMove === "FORWARD MOVE") {      
       context.arc(
         pad.x + PAD_WIDTH / 2,
         pad.y + PAD_HEIGHT / 4,
@@ -160,7 +222,7 @@ function loop() {
         0,
         2 * Math.PI
       );
-    } else if (lastMove === "BOTTOM") {
+    } else if (lastMove === "BACKWARD MOVE") {      
       context.arc(
         pad.x + PAD_WIDTH / 2,
         pad.y + (PAD_HEIGHT / 4) * 3,
@@ -168,7 +230,7 @@ function loop() {
         0,
         2 * Math.PI
       );
-    } else if (lastMove === "LEFT") {
+    } else if (lastMove === "LEFT MOVE") {
       context.arc(
         pad.x + PAD_WIDTH / 4,
         pad.y + PAD_HEIGHT / 2,
@@ -176,7 +238,7 @@ function loop() {
         0,
         2 * Math.PI
       );
-    } else if (lastMove === "RIGHT") {
+    } else if (lastMove === "RIGHT MOVE") {
       context.arc(
         pad.x + (PAD_WIDTH / 4) * 3,
         pad.y + PAD_HEIGHT / 2,
@@ -240,21 +302,21 @@ const DANCE_TRACK = [
   "",
   "",
   "",
-  "LEFT",
+  "LEFT MOVE",
   "",
   "",
   "",
-  "RIGHT",
+  "RIGHT MOVE",
   "",
   "",
   "",
-  "UP",
+  "FORWARD MOVE",
   "",
   "",
   "",
 ];
 
-const BPM = 100;
+const BPM = 60;
 const GAME_INTERVAL = (BPM / 60) * 4;
 const INTERVAL = (1 / GAME_INTERVAL) * 1000;
 
@@ -262,6 +324,16 @@ let gameIndex = 0;
 let beatsSinceLastNote = 0;
 
 let score = 0;
+
+function getNextMove() {
+  let i = gameIndex + 1;
+  while (true) {
+    if (DANCE_TRACK[i % DANCE_TRACK.length].length > 0) {
+      return DANCE_TRACK[i % DANCE_TRACK.length];
+    }
+    i++;
+  }
+}
 
 setInterval(() => {
   const note = GUITAR_TRACK[gameIndex % GUITAR_TRACK.length];
@@ -297,7 +369,7 @@ setInterval(() => {
       if (dance.movesPlayed.includes(lastMove) && !dance.noteHit) {
         dance.noteHit = true;
         dance.movesPlayed = [];
-        score += Math.max(0, 10 - beatsSinceLastNote);
+        dance.score += Math.max(0, 10 - beatsSinceLastNote);
       }
     }
 

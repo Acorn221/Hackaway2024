@@ -241,18 +241,18 @@ export default class WIIBalanceBoard extends WIIMote {
 
     let detectedDirection = 'INVALID MOVE';
 
-    const forwardThresh = directionThreshold * 0.15;
+    const forwardThresh = this.userWeight * 0.2;
 
-    const backThresh = directionThreshold * 0.25;
+    const backThresh = this.userWeight * 0.1;
 
     // Check which direction the user is leaning
     if (sum.LEFT > directionThreshold && sum.RIGHT < directionThreshold) {
       detectedDirection = 'LEFT MOVE';
     } else if (sum.RIGHT > directionThreshold && sum.LEFT < directionThreshold) {
       detectedDirection = 'RIGHT MOVE';
-    } else if (sum.TOP > forwardThresh && sum.BOTTOM < forwardThresh) {
+    } else if (sum.TOP - sum.BOTTOM > forwardThresh) { // && sum.BOTTOM < forwardThresh
       detectedDirection = 'FORWARD MOVE';
-    } else if (sum.BOTTOM > backThresh && sum.TOP < backThresh) {
+    } else if (sum.BOTTOM  - sum.TOP > forwardThresh) { // && sum.TOP < backThresh
       detectedDirection = 'BACKWARD MOVE';
     } else if (
       sum.LEFT < directionThreshold
