@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable prefer-destructuring */
@@ -27,6 +28,7 @@ const App = () => {
 
   const removeBoard = (board: WIIBalanceBoard) => {
     setBoards(boards.filter((b) => b !== board));
+    boards.forEach((_b, i) => boards[i].idNum = i);
   };
 
   const connectToBoard = async () => {
@@ -41,7 +43,7 @@ const App = () => {
       if (!device) {
         return console.log('No device was selected.');
       }
-      const board = new WIIBalanceBoard(device);
+      const board = new WIIBalanceBoard(device, boards.length);
 
       setBoards([...boards, board]);
     } catch (error) {
