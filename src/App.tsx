@@ -1,12 +1,15 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable prefer-destructuring */
 import React, { useEffect, useState } from 'react';
 import { XyzTransitionGroup } from '@animxyz/react';
 // @ts-ignore
+import Phaser from 'phaser';
 import WIIBalanceBoard, { WeightsType } from './wii-code/src/wiibalanceboard';
 
 import '@/index.css';
 import BoardDisplay from './board';
+import { GameContainer, config } from './game';
 
 const App = () => {
   const [count, setCount] = useState(0);
@@ -59,34 +62,38 @@ const App = () => {
   }, [boards]);
 
   return (
-    <div className="flex justify-center align-middle h-screen">
-      <div className="bg-white m-auto p-10 rounded-xl w-3/4 md:w-1/2 text-center">
-        <div className="underline text-5xl">Hello World</div>
-        <div className="flex justify-center m-5">
-          <button className="text-2xl m-auto w-full bg-slate-200 hover:bg-slate-300 p-5 rounded-2xl flex" onClick={() => connectToBoard()}>
-            <div className="flex-initial">
-              Click Count:
-            </div>
-            <XyzTransitionGroup xyz="fade down-100% back-2" duration={150} className="flex-1">
-              {showCount && (
-              <div>
-                {count}
+    <div className="min-h-screen w-full">
+      <GameContainer />
+      <div className="flex justify-center align-middle h-screen">
+        <div className="bg-white m-auto p-10 rounded-xl w-3/4 md:w-1/2 text-center">
+          <div className="underline text-5xl">Hello World</div>
+          <div className="flex justify-center m-5">
+            <button className="text-2xl m-auto w-full bg-slate-200 hover:bg-slate-300 p-5 rounded-2xl flex" onClick={() => connectToBoard()}>
+              <div className="flex-initial">
+                Click Count:
               </div>
-              )}
-            </XyzTransitionGroup>
-          </button>
-        </div>
-        <div className="m-5 text-left">
-          {
-            boards.map((board, key) => (
-              <div key={key}>
-                <BoardDisplay board={board} removeSelf={() => removeBoard(board)} />
-              </div>
-            ))
+              <XyzTransitionGroup xyz="fade down-100% back-2" duration={150} className="flex-1">
+                {showCount && (
+                <div>
+                  {count}
+                </div>
+                )}
+              </XyzTransitionGroup>
+            </button>
+          </div>
+          <div className="m-5 text-left">
+            {
+              boards.map((board, key) => (
+                <div key={key}>
+                  <BoardDisplay board={board} removeSelf={() => removeBoard(board)} />
+                </div>
+              ))
           }
+          </div>
         </div>
       </div>
     </div>
+
   );
 };
 

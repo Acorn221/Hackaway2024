@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "lib": ["DOM", "DOM.Iterable", "ESNext", "es6", "dom", "dom.iterable", "scripthost"],
+
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -23,5 +24,7 @@
   "references": [{ "path": "./tsconfig.node.json" }],
   "rootDir": "./src" /* Specify the root folder within your source files. */,
   "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-  "baseUrl": "./src" /* Specify the base directory to resolve non-relative module names. */
+  "baseUrl": "./src", /* Specify the base directory to resolve non-relative module names. */
+  "typeRoots": ["./node_modules/phaser/types"],
+  "types": ["Phaser"]
 }

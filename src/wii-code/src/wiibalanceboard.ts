@@ -219,29 +219,31 @@ export default class WIIBalanceBoard extends WIIMote {
       BOTTOM: (avg.BOTTOM_LEFT + avg.BOTTOM_RIGHT) / 2,
     };
 
-    const directionThreshold = this.userWeight * 0.3;
+    const directionThreshold = this.userWeight * 0.20;
 
     console.log('Direction Threshold:', directionThreshold);
     console.log('Weight Sums:', sum);
 
     let detectedDirection = 'INVALID MOVE';
 
-    const forwardBackThresh = this.userWeight * 0.5;
+    const forwardThresh = 1;
+
+    const backThresh = 1;
 
     // Check which direction the user is leaning
     if (sum.LEFT > directionThreshold && sum.RIGHT < directionThreshold) {
       detectedDirection = 'LEFT MOVE';
     } else if (sum.RIGHT > directionThreshold && sum.LEFT < directionThreshold) {
       detectedDirection = 'RIGHT MOVE';
-    } else if (sum.TOP > forwardBackThresh && sum.BOTTOM < forwardBackThresh) {
+    } else if (sum.TOP > forwardThresh && sum.BOTTOM < forwardThresh) {
       detectedDirection = 'FORWARD MOVE';
-    } else if (sum.BOTTOM > forwardBackThresh && sum.TOP < forwardBackThresh) {
+    } else if (sum.BOTTOM > backThresh && sum.TOP < backThresh) {
       detectedDirection = 'BACKWARD MOVE';
     } else if (
       sum.LEFT < directionThreshold
-  && sum.RIGHT < directionThreshold
-  && sum.TOP < directionThreshold
-  && sum.BOTTOM < directionThreshold
+      && sum.RIGHT < directionThreshold
+      && sum.TOP < directionThreshold
+      && sum.BOTTOM < directionThreshold
     ) {
       detectedDirection = 'NEUTRAL MOVE';
     } else {
@@ -251,6 +253,8 @@ export default class WIIBalanceBoard extends WIIMote {
     if (this.currentMove !== detectedDirection) {
       this.timeMoveStarted = Date.now();
       this.currentMove = detectedDirection;
+      const moveEvent = new CustomEvent('move', { detail: this.currentMove });
+      this.target.dispatchEvent(moveEvent);
       console.log(this.currentMove);
     }
   }
